@@ -1,0 +1,403 @@
+{
+  "start_area": "dr1",
+  "game_state": {
+    "inventory": [],
+    "log": [
+      "[GAME START]"
+    ],
+    "score": 0,
+    "timer": 0,
+    "artifacts": {},
+    "id_to_name": {},
+    "events": {},
+    "interactions": {
+      "open__box": {
+        "message": "You open the box. There is a key inside",
+        "events": {
+          "make_key_accessible": true
+        },
+        "new_state": null,
+        "consumed": null,
+        "is_repeatable": true,
+        "item": null,
+        "success": false
+      }
+    },
+    "visited_tiles": []
+  },
+  "artifacts": [
+    {
+      "id": "dr1",
+      "type": "area",
+      "name": "Dungeon Room",
+      "description_": {
+        "start": "Ye find yeself in yon dungeon.",
+        "end": "Obvious exits are NORTH, SOUTH, and DENNIS.",
+        "triggers": {}
+      },
+      "container_description": "",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {
+        "dr2": "n"
+      },
+      "properties": {
+        "is_accessible": true,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "dr2",
+      "type": "area",
+      "name": "Dungeon Room 2",
+      "description_": {
+        "start": "Ye find yeself a little farther into yon dungeon.",
+        "end": "Exits are WEST, and SOUTH.",
+        "triggers": {}
+      },
+      "container_description": "",
+      "fixtures_": [],
+      "items_": [
+        "box"
+      ],
+      "display_order": [],
+      "exits_": {
+        "dr1": "s",
+        "dr3": "w"
+      },
+      "properties": {
+        "is_accessible": true,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "dr3",
+      "type": "area",
+      "name": "Door Room",
+      "description_": {
+        "start": "Ye find yeself in yet another room",
+        "end": "Exits are EAST, and NORTH.",
+        "triggers": {}
+      },
+      "container_description": "",
+      "fixtures_": [
+        "north_door"
+      ],
+      "items_": [],
+      "display_order": [],
+      "exits_": {
+        "tr": "n",
+        "dr2": "e"
+      },
+      "properties": {
+        "is_accessible": true,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {
+        "use__key__north_door": {
+          "message": "You unlock the door with the key.",
+          "events": {
+            "open_ze_door": true
+          },
+          "new_state": null,
+          "consumed": null,
+          "is_repeatable": false,
+          "item": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "id": "tr",
+      "type": "area",
+      "name": "Treasure Room",
+      "description_": {
+        "start": "Ye find yeself in the treasure room.",
+        "end": "I could tell you the exits, but you don't really want to go backwards do you? There's nothing for you there. Oh, fine, whatever. Exits are SOUTH.",
+        "triggers": {}
+      },
+      "container_description": "",
+      "fixtures_": [
+        "pedastel",
+        "plaque"
+      ],
+      "items_": [],
+      "display_order": [],
+      "exits_": {
+        "dr3": "s"
+      },
+      "properties": {
+        "is_accessible": true,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "pedastel",
+      "type": "fixture",
+      "name": "Pedastel",
+      "description_": {
+        "start": "It is a pedastel.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "Ye see a PEDASTEL.",
+      "fixtures_": [],
+      "items_": [
+        "golden_flask"
+      ],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_locked": false,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {},
+      "interactions": {
+        "take__golden_flask": {
+          "message": "You got ye flask!",
+          "events": {
+            "game_victory": true
+          },
+          "new_state": null,
+          "consumed": null,
+          "is_repeatable": true,
+          "item": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "id": "plaque",
+      "type": "fixture",
+      "name": "Plaque",
+      "description_": {
+        "start": "It reads: 'Here is an anagram: This text adventure sucks.' You think for a long time, but the only way you can think to decode it is with the sentence 'This text adventure sucks'",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "There is a PLACQUE on the wall.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_locked": false,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "golden_flask",
+      "type": "item",
+      "name": "Golden Flask",
+      "description_": {
+        "start": "It is a golden flask. It is shiny and very valuable.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "There is a GOLDEN FLASK on it.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_broken": false,
+        "is_accessible": true,
+        "is_locked": false,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "north_door",
+      "type": "fixture",
+      "name": "Door",
+      "description_": {
+        "start": "It is a door. It is closed and locked.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "To the NORTH there is a closed DOOR.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": true,
+        "is_open": false,
+        "is_locked": true,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {
+        "open_ze_door__True": {
+          "isDescriptionTrigger": false,
+          "is_openable": false,
+          "is_open": false,
+          "is_locked": false,
+          "is_visible": true
+        }
+      },
+      "interactions": {}
+    },
+    {
+      "id": "box",
+      "type": "item",
+      "name": "Box",
+      "description_": {
+        "start": "It is a box. It looks like it can be opened.",
+        "end": "",
+        "triggers": {
+          "make_key_accessible__True": {
+            "start": "It is a box. It is now open.",
+            "end": ""
+          }
+        }
+      },
+      "container_description": "Ye see a BOX.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": true,
+        "is_open": false,
+        "is_broken": false,
+        "is_accessible": true,
+        "is_locked": false,
+        "is_visible": true
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "dummy_marking",
+      "type": "fixture",
+      "name": "Marking",
+      "description_": {
+        "start": "The marking is a RUNE of some sort.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "There appears to be some strange MARKING on it.",
+      "fixtures_": [
+        "dummy_rune"
+      ],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_locked": false,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "dummy_rune",
+      "type": "fixture",
+      "name": "Rune",
+      "description_": {
+        "start": "Turns out the rune isn't a rune at all, it is some words that read 'This isn't the flask you're looking for'. Ironic!",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "It is difficult to make out.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_locked": false,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "dummy_flask",
+      "type": "fixture",
+      "name": "Flask",
+      "description_": {
+        "start": "It is a flask.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "Ye see a FLASK.",
+      "fixtures_": [
+        "dummy_marking"
+      ],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_locked": false,
+        "is_visible": true,
+        "is_accessible": false
+      },
+      "triggers": {},
+      "interactions": {}
+    },
+    {
+      "id": "key",
+      "type": "item",
+      "name": "Key",
+      "description_": {
+        "start": "It looks like a door key. It is shiny and made of brass.",
+        "end": "",
+        "triggers": {}
+      },
+      "container_description": "There is a key inside.",
+      "fixtures_": [],
+      "items_": [],
+      "display_order": [],
+      "exits_": {},
+      "properties": {
+        "is_openable": false,
+        "is_open": false,
+        "is_broken": false,
+        "is_accessible": false,
+        "is_locked": false,
+        "is_visible": false
+      },
+      "triggers": {
+        "make_key_accessible__True": {
+          "isDescriptionTrigger": false,
+          "is_openable": false,
+          "is_open": false,
+          "is_broken": false,
+          "is_accessible": true,
+          "is_locked": false,
+          "is_visible": true
+        }
+      },
+      "interactions": {}
+    }
+  ]
+}
