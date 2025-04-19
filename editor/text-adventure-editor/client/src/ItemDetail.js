@@ -1,6 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-const ItemDetail = ({ item, onClose, onEdit }) => {
+const ItemDetail = ({ item, onClose, onEdit, onProjectChange }) => {
+  const [projects, setProjects] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState(item.project_id || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/projects');
+        if (!response.ok) throw new Error('Failed to fetch projects');
+        const data = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleProjectChange = async (projectId) => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/items/assign-project', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          item_ids: [item.id],
+          project_id: projectId ? Number(projectId) : null
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to assign item to project');
+      setSelectedProjectId(projectId);
+      // Refresh the item data
+      const itemResponse = await fetch(`http://localhost:3001/api/items/${item.id}`);
+      if (!itemResponse.ok) throw new Error('Failed to fetch updated item');
+      const updatedItem = await itemResponse.json();
+      // Update the parent component's item data
+      if (onProjectChange) {
+        onProjectChange(updatedItem);
+      }
+    } catch (error) {
+      console.error('Error assigning item to project:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (!item) return null;
 
   // Helper function to render JSON objects
@@ -21,7 +69,7 @@ const ItemDetail = ({ item, onClose, onEdit }) => {
     return (
       <div className="flex flex-wrap gap-2">
         {array.map((item, index) => (
-          <div key={index} className="bg-gray-100 rounded px-3 py-1 text-sm">
+          <div key={`${item}-${index}`} className="bg-gray-100 rounded px-3 py-1 text-sm">
             {item}
           </div>
         ))}
@@ -65,6 +113,28 @@ const ItemDetail = ({ item, onClose, onEdit }) => {
             <div>
               <h3 className="font-medium text-gray-700 mb-1">Name</h3>
               <p>{item.name}</p>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-gray-700 mb-1">Project Assignment</h3>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedProjectId}
+                  onChange={(e) => handleProjectChange(e.target.value)}
+                  disabled={isUpdating}
+                  className="border rounded p-2 flex-grow"
+                >
+                  <option value="">No Project</option>
+                  {projects.map(project => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+                {isUpdating && (
+                  <div className="text-sm text-gray-500">Updating...</div>
+                )}
+              </div>
             </div>
           </div>
 
