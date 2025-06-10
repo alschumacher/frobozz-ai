@@ -7,6 +7,7 @@ class InteractiveActions(Enum):
     TAKE = "take"
     GET = 'get'
     DROP = "drop"
+    PUT = 'put'
     USE = "use"
     OPEN = "open"
     CLOSE = "close"
@@ -14,7 +15,14 @@ class InteractiveActions(Enum):
     S = "s"
     E = "e"
     W = "w"
-
+    LIGHT = 'light'
+    BURN = 'burn'
+    IGNITE = 'ignite'
+    CUT = 'cut'
+    SLICE = 'slice'
+    SAW = 'saw' 
+    TURN = 'turn'
+    ROTATE = 'rotate'
 
 class GameActions(Enum):
     INVENTORY = "inventory"
@@ -32,13 +40,22 @@ class ItemVerbs(Enum):
     OPEN = "open"
     CLOSE = "close"
     TAKE = "take"
-
+    CUT = 'cut'
+    SLICE = 'slice'
+    SAW = 'saw' 
 
 class FixtureVerbs(Enum):
     LOOK = 'look'
     OPEN = 'open'
     CLOSE = 'close'
-
+    LIGHT = 'light'
+    BURN = 'burn'
+    IGNITE = 'ignite'
+    CUT = 'cut'
+    SLICE = 'slice'
+    SAW = 'saw'
+    TURN = 'turn'
+    ROTATE = 'rotate'
 
 class AreaVerbs(Enum):
     LOOK = 'look'
@@ -66,3 +83,11 @@ class IntransitiveVerbs(Enum):
 
 class ThreePlacePredicates(Enum):
     USE = 'use'
+    LIGHT = 'light'
+    BURN = 'burn'
+    IGNITE = 'ignite'
+    CUT = 'cut'
+    SLICE = 'slice'
+    SAW = 'saw'
+    PUT = 'put'
+    DROP = 'drop'

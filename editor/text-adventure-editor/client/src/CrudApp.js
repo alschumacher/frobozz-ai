@@ -43,8 +43,27 @@ const CrudApp = () => {
   };
 
   // Export all items with settings
-  const handleExport = async (settings) => {
+  const handleExport = async (projectId, formData, action = 'export') => {
     try {
+      if (action === 'save') {
+        // Save export settings
+        const saveResponse = await fetch(`${API_URL}/projects/${projectId}/export-settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!saveResponse.ok) {
+          throw new Error('Failed to save export settings');
+        }
+        
+        alert('Export settings saved successfully');
+        return;
+      }
+
+      // Perform export
       const response = await fetch(`${API_URL}/export`, {
         method: 'POST',
         headers: {
@@ -63,9 +82,9 @@ const CrudApp = () => {
       a.download = 'items_export.json';
       a.click();
       URL.revokeObjectURL(url);
-      setShowExportSettings(false);
-    } catch (error) {
-      console.error('Error exporting items:', error);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error handling export:', err);
     }
   };
 
@@ -304,6 +323,16 @@ const CrudApp = () => {
           items={items}
           onSubmit={handleExport}
           onCancel={() => setShowExportSettings(false)}
+          projectId={selectedProjectId}
+        />
+      )}
+
+      {showProjectManager && (
+        <ProjectManager
+          projects={projects}
+          onDeleteProject={handleDeleteProject}
+          onExport={handleExport}
+          onClose={() => setShowProjectManager(false)}
         />
       )}
     </div>

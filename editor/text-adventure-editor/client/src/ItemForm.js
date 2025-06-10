@@ -12,17 +12,24 @@ const propertySchemas = {
     { name: 'is_accessible', label: 'Is Accessible', default: true },
     { name: 'is_locked', label: 'Is Locked', default: false },
     { name: 'is_visible', label: 'Is Visible', default: true },
+    { name: 'is_lit', label: 'Is Lit', default: false },
+    { name: 'is_flammable', label: 'Is Flammable', default: false },
+    { name: 'is_dark', label: 'Is Dark', default: false },
   ],
   fixture: [
     { name: 'is_openable', label: 'Is Openable', default: false },
     { name: 'is_open', label: 'Is Open', default: false },
     { name: 'is_locked', label: 'Is Locked', default: false },
     { name: 'is_visible', label: 'Is Visible', default: true },
+    { name: 'is_lit', label: 'Is Lit', default: false },
+    { name: 'is_flammable', label: 'Is Flammable', default: false },
+    { name: 'is_dark', label: 'Is Dark', default: false },
     // is_accessible is always false for fixtures and not directly editable
   ],
   area: [
     { name: 'is_accessible', label: 'Is Accessible', default: true },
     { name: 'is_visible', label: 'Is Visible', default: true },
+    { name: 'is_dark', label: 'Is Dark', default: false },
   ],
 };
 

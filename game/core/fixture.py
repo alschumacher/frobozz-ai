@@ -34,12 +34,15 @@ class Fixture(Artifact):
             HandleActionResponse: The response after handling the action.
         """
 
+        logger.debug(f"Attempting to dispatch action at fixture {self.id} with object {action.get('object').id if action.get('object') else 'None'}")
+
         # Check if the action is directed at a specific object
         if action.get('object'):
             # Iterate through the fixtures contained within this fixture
             for fxt in self._get_artifacts(self.fixtures, game_state):
                 # If the object ID matches, delegate the action to the contained fixture
                 if fxt.id == action['object'].id:
+                    
                     action['object'] = None
                     logger.info(f"Dispatching action: {action['action']} onto fixture: {fxt.id} from context: {self.id}")
                     return fxt.handle_action(action, game_state)
@@ -47,4 +50,27 @@ class Fixture(Artifact):
         # Perform the action on this fixture if no specific object is targeted
         logger.info(f"Dispatching action: {action['action']} onto context: {self.id}")
         return fixture_actions.do_action(self, action, game_state)
-1
+
+    @property
+    def is_broken(self):
+        return self.properties.is_broken
+
+    @is_broken.setter
+    def is_broken(self, value):
+        self.properties.is_broken = value
+
+    @property
+    def is_lit(self):
+        return self.properties.is_lit
+
+    @is_lit.setter
+    def is_lit(self, value):
+        self.properties.is_lit = value
+
+    @property
+    def is_flammable(self):
+        return self.properties.is_flammable
+
+    @is_flammable.setter
+    def is_flammable(self, value):
+        self.properties.is_flammable = value

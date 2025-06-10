@@ -36,7 +36,7 @@ class Item(Artifact):
 
         # Check if the action is directed at a specific object and has not been dispatched yet
 
-        logger.debug(f"Attempting to dispatch action with object {action.get('object').id}")
+        logger.debug(f"Attempting to dispatch action at item {self.id} with object {action.get('object').id}")
 
         if action.get('object') and not action.get('dispatched'):
             # Iterate through fixtures and items to find the target object
@@ -67,4 +67,22 @@ class Item(Artifact):
     def is_broken(self):
         return self.properties.is_broken
 
+    @is_broken.setter
+    def is_broken(self, value):
+        self.properties.is_broken = value
 
+    @property
+    def is_lit(self):
+        return self.properties.is_lit
+
+    @is_lit.setter
+    def is_lit(self, value):
+        self.properties.is_lit = value
+
+    @property
+    def is_flammable(self):
+        return self.properties.is_flammable
+
+    @is_flammable.setter
+    def is_flammable(self, value):
+        self.properties.is_flammable = value
