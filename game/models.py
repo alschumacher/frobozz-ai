@@ -12,6 +12,7 @@ class GameState(BaseModel):
     id_to_name: dict = Field(default_factory=dict)
     events: dict = Field(default_factory=dict)
     interactions: dict = Field(default_factory=dict)
+    state_events: dict = Field(default_factory=dict)
     visited_tiles: list = Field(default_factory=list)
 
     @property
@@ -21,7 +22,6 @@ class GameState(BaseModel):
     @event_log.setter
     def event_log(self, event:dict):
         if event:
-            logger.info(f'Updating game state with event: {event}')
             self.events.update(event)
             self._trigger_events(event)
 
@@ -36,6 +36,7 @@ class HandleActionResponse(BaseModel):
     message: str = '' # display message on use of item
     events: dict = {} # game flags changed after use
     new_state: Any = None # the state to change the game to
+    prerequisite_events: List[str] = [] # list of events that all must have occurred in order for the interaction to fire
     consumed: Optional[bool] = None # item consumed after use
     item: Optional[Any] = None # technically should be of the `Item` class (this should not be editable and should be hidden but be present for each with default value in db)
     is_repeatable: bool = True # action is repeatable
@@ -44,21 +45,27 @@ class HandleActionResponse(BaseModel):
 
 class ItemProperties(BaseModel):
     is_openable: bool = False # as in, openable in principle.
-    is_open: bool = False
+    is_locked: bool = False # this controls whether the object can be opened
+    is_open: bool = False # this controls whether the object already is open
     is_broken: bool = False
     is_accessible: bool = True
-    is_locked: bool = False
     is_visible: bool = True
-
+    is_lit: bool = False
+    is_flammable: bool = False
+    is_dark: bool = False
 
 class FixtureProperties(BaseModel):
     is_openable: bool = False
     is_open: bool = False
     is_locked: bool = False
+    is_broken: bool = False
     is_visible: bool = True
     is_accessible: Literal[False] = Field(False)
-
+    is_lit: bool = False
+    is_flammable: bool = False
+    is_dark: bool = False
 
 class AreaProperties(BaseModel):
     is_accessible: bool = True
     is_visible: bool = True
+    is_dark: bool = False

@@ -37,13 +37,21 @@ def dispatch_events(
     Returns:
         HandleActionResponse: The updated response after dispatching events.
     """
-    interaction_name = f"{action}__{object.id}"
+    if object:
+        interaction_name = f"{action}__{object.id}"
+    else:
+        interaction_name = f"{action}__{context.id}"
 
     # If the action is a ThreePlacePredicate, like `use`, the interaction name
     # requires it and the iobject in order to identify the interaction.
     if action in ThreePlacePredicates._value2member_map_:
+        logger.debug(f"ThreePlacePredicate action: {action}")
         iobject = kwargs.get('iobject')
         if iobject:
+            logger.debug(f"ThreePlacePredicate iobject found: {iobject}")
+            if iobject.is_broken:
+                return HandleActionResponse(message=f'{iobject.name} is broken.', success=False)
+
             interaction_name += f"__{iobject.id}"
 
     logger.info(f"Dispatching events for interaction: {interaction_name}")
@@ -58,6 +66,13 @@ def dispatch_events(
         return response
 
     logger.info(f"Found interaction in {locus}: {interaction}")
+
+    for event in interaction.get('prerequisite_events', []):
+        event, val = event.split('__')
+        val = eval(val)
+        if game_state.events.get(event, 'nope!') != val:
+            logger.debug(f'Event {event} failed to match necessary attribute values.')
+            return response
 
     response = HandleActionResponse.model_validate(interaction)
     response = modify_response(response, **kwargs)

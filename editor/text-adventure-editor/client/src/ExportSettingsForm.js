@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GameStateForm from './GameStateForm';
 
-const ExportSettingsForm = ({ areas, items, onSubmit, onCancel }) => {
+const ExportSettingsForm = ({ areas, items, onSubmit, onCancel, projectId }) => {
   const [formData, setFormData] = useState({
     start_area: '',
     game_state: {
@@ -42,7 +42,7 @@ const ExportSettingsForm = ({ areas, items, onSubmit, onCancel }) => {
       return;
     }
     console.log('Submitting export with data:', formData);
-    onSubmit(formData);
+    onSubmit(projectId, formData);
   };
 
   return (
@@ -112,11 +112,19 @@ const ExportSettingsForm = ({ areas, items, onSubmit, onCancel }) => {
               Cancel
             </button>
             <button
+              type="button"
+              onClick={() => onSubmit(projectId, formData, 'save')}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              disabled={!formData.start_area}
+            >
+              Save Settings
+            </button>
+            <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               disabled={!formData.start_area}
             >
-              Export
+              Export Project
             </button>
           </div>
         </form>

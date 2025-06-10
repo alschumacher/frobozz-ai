@@ -1,5 +1,5 @@
 import json
-from typing import Tuple, List
+from typing import Tuple, List, Iterable
 
 from game.actions.action_enums import InteractiveActions, GameActions
 from game.core.area import Area
@@ -29,7 +29,7 @@ class TextAdventure:
     def __init__(self, config):
         # The order is deliberate and necessary.
         self.game_state = self._read_config(config)
-        self._initialize_map()
+        self._initialize()
 
     def run_command(self, command:str) -> str:
         """
@@ -61,7 +61,12 @@ class TextAdventure:
 
         # If the action used an item that should be consumed on use
         if response.consumed:
-            self.game_state.inventory.remove(response.item)
+            if response.item in self.game_state.inventory:
+                self.game_state.inventory.remove(response.item)
+            elif response.item in self.current_state.items:
+                self.current_state.items.remove(response.item)
+            else:
+                logger.warning(f'Item not found in inventory or current state: {response.item}, nothing was removed!')
             logger.debug(f'Consumed item: {response.item}')
 
         # If the action changed the area
@@ -70,6 +75,48 @@ class TextAdventure:
             logger.debug(f'Changed area to: {response.new_state}')
             if response.new_state not in self.game_state.visited_tiles:
                 self.game_state.visited_tiles.append(response.new_state)
+
+        # Calculate state events - we do this every time which is not efficient but it's not a big deal
+        # Data model: { event: { "artifacts": { artifact_id: { property: value } }, "events": { event: True/False }, "event_value": True/False } ...  }
+        for event, conditions in self.game_state.state_events.items():
+            # logger.debug(f'Checking for changes in state event: {event}')
+            event_triggered = True
+            for artifiact_id in conditions['artifacts'].keys():
+                for property_name, value in conditions['artifacts'][artifiact_id].items():
+                    # logger.debug(f"Looking for {property_name} and {artifiact_id}")
+                    property_value = getattr(self.game_state.artifacts[artifiact_id], property_name)
+                    if isinstance(property_value, Iterable):
+                        # corresponds to "at least one of the items in value must be in property_value" logic
+                        if isinstance(value, list) and not set(value).issuperset(set(property_value)):
+                            # logger.debug(f'State event {event} failed trigger: Property value {property_value} is not a subset of {value}')
+                            event_triggered = False
+                            break
+                        # corresponds to "this item must be in the property_value" logic
+                        elif not isinstance(value, list) and value not in property_value:
+                            # logger.debug(f'State event {event} failed trigger: Property value {property_value} does not contain {value}')
+                            event_triggered = False
+                            break
+                    elif property_value != value:
+                        # logger.debug(f'State event {event} failed trigger: Property value {property_value} does not equal {value}')
+                        event_triggered = False
+                        break
+                if not event_triggered:
+                    break
+            if event_triggered and conditions['events']:
+                # logger.debug(f'Checking for events: {conditions["events"]}')
+                for event_name, value in conditions['events'].items():
+                    if self.game_state.events.get(event_name) != value:
+                        # logger.debug(f'State event {event} failed trigger: Event value {self.game_state.events.get(event_name)} does not equal {value}')
+                        event_triggered = False
+                        break
+            if event_triggered:
+                if not self.game_state.event_log.get(event):
+                    logger.info(f'Triggering state event: {event}')
+                self.game_state.event_log = {event:True}
+            else:
+                if self.game_state.event_log.get(event):
+                    logger.info(f'Turning off state event: {event}')
+                self.game_state.event_log = {event:False}
 
         # If the game_victory event has been dispatched
         if self.game_state.events.get('game_victory'):
@@ -157,20 +204,19 @@ class TextAdventure:
                 logger.debug(f'Found object: {name}')
                 return artifact
             context.extend(artifact.items + artifact.fixtures)
-            # for contained_artifact_id in artifact.items + artifact.fixtures:
-            #     contained_artifact = self.game_state.artifacts[contained_artifact_id]
-            #     context.append(contained_artifact_id)
-            #     if contained_artifact.name.lower() == name.lower() and contained_artifact.is_visible:
-            #         logger.debug(f'Found object {name} contained in {contained_artifact.id}')
-            #         return contained_artifact
 
         return object
 
-    def _initialize_map(self):
-        """ Initializes the map by creating exits between areas. """
+    def _initialize(self):
+        # Initializes the map by creating exits between areas.
         areas = [area for area in self.game_state.artifacts.values() if isinstance(area, Area)]
         for area in areas:
             area._make_exits(areas)
+        
+        # Propagates artifact name into descriptions
+        for artifact in self.game_state.artifacts.values():
+            if not artifact.description_.name:
+                artifact.description_.name = artifact.id
 
     def _read_config(self, config:dict) -> Tuple[List[Area], GameState]:
         """ Deserializes the game configuration from a JSON file or dictionary into Artifact objects. """

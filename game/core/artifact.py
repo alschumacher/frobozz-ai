@@ -26,8 +26,9 @@ class Artifact(BaseModel):
     items_: List[str] = Field(default_factory=list)
     fixtures_: List[str] = Field(default_factory=list)
     container_: Any = None
-    display_order: list = []
+    display_order: list = Field(default_factory=list)
     container_description: str = ""
+    _capacity: int = 100
 
     class Config:
         extra = "allow"
@@ -54,15 +55,26 @@ class Artifact(BaseModel):
         This method updates the object's attributes and modifies its description based on the triggers
         defined in the `triggers` attribute. If a trigger is found, it sets the corresponding attribute
         to the specified value and modifies the description accordingly.
+
+        TODO: this method seems to be setting event properties that have already been set.
+              I don't really know why and it's not affecting state but it is annoying and unnecessary.
         """
         for item in event.items():
             trigger_name = f"{item[0]}__{item[1]}"
             if trigger_name in self.triggers:
+                # logger.debug(f"Looking for trigger {trigger_name} with value on {self.id}")
                 triggers = self.triggers[trigger_name]
                 for trigger in triggers:
-                    logger.info(f"Triggering event: {trigger[0]} with value: {trigger[1]} on {self.id}")
-                    setattr(self, trigger[0], trigger[1])
-            self.description_._modify_description(item)
+                    # logger.debug(f"Triggering event: {trigger} with value: {triggers[trigger]} on {self.id}")
+
+                    # this check is necessary if the db dumps properties verbosely
+                    if self.triggers.get(trigger) != getattr(self, trigger, 'no_match'):
+                        try:
+                            setattr(self, trigger, triggers[trigger])
+                        except:
+                            logger.warning(f"Attribute {trigger} is not settable; this is fine in principle if the property is not supposed to be modified.")
+
+            self.description_._modify_description(trigger_name)
 
     def _get_artifacts(self, ids, game_state):
         """
@@ -91,6 +103,10 @@ class Artifact(BaseModel):
         :return: The rendered description.
         """
         return self.description_.render(self, game_state)
+
+    @property
+    def capacity(self):
+        return self._capacity
 
     @property
     def items(self):
@@ -156,4 +172,10 @@ class Artifact(BaseModel):
     def is_accessible(self, value):
         self.properties.is_accessible = value
 
+    @property
+    def is_dark(self):
+        return self.properties.is_dark
 
+    @is_dark.setter
+    def is_dark(self, value):
+        self.properties.is_dark = value

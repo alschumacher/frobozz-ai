@@ -63,14 +63,14 @@ class Description(BaseModel):
                     middle.append(fxt.container_description)
         return " ".join(middle)
 
-    def _modify_description(self, event: dict):
+    def _modify_description(self, trigger_name:str):
         """
         Modifies the description based on the given event.
         """
-        effect = self.triggers.get(event, {})
+        effect = self.triggers.get(trigger_name, {})
         if effect.get('start'):
-            logger.debug(f"Setting {self.name} start description to {effect['start']} due to event {event}")
+            logger.debug(f"Setting {self.name} start description to {effect['start']} due to event {trigger_name}")
             self.start = effect['start']
         if effect.get('end'):
-            logger.debug(f"Setting {self.name} end description to {effect['end']} due to event {event}")
+            logger.debug(f"Setting {self.name} end description to {effect['end']} due to event {trigger_name}")
             self.end = effect['end']

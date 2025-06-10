@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import ExportSettings from './ExportSettings';
+import StateEventEditor from './StateEventEditor';
 
 const ProjectManager = ({ projects, onDeleteProject, onExport, onClose }) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showExportSettings, setShowExportSettings] = useState(false);
+  const [showStateEventEditor, setShowStateEventEditor] = useState(false);
 
   const handleProjectSelect = (project) => {
     setSelectedProject(project);
     setShowExportSettings(false);
+    setShowStateEventEditor(false);
   };
 
   const handleExport = async () => {
@@ -69,6 +72,12 @@ const ProjectManager = ({ projects, onDeleteProject, onExport, onClose }) => {
                   {showExportSettings ? 'Hide Export Settings' : 'Show Export Settings'}
                 </button>
                 <button
+                  onClick={() => setShowStateEventEditor(!showStateEventEditor)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  {showStateEventEditor ? 'Hide State Events' : 'Show State Events'}
+                </button>
+                <button
                   onClick={handleExport}
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                 >
@@ -83,6 +92,12 @@ const ProjectManager = ({ projects, onDeleteProject, onExport, onClose }) => {
                     // Refresh the project list or show a success message
                     alert('Export settings saved successfully');
                   }}
+                />
+              )}
+              {showStateEventEditor && (
+                <StateEventEditor
+                  projectId={selectedProject.id}
+                  onClose={() => setShowStateEventEditor(false)}
                 />
               )}
             </div>

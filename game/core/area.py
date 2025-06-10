@@ -26,7 +26,7 @@ class Area(Artifact):
 
         if action.get('object'):
 
-            logger.debug(f"Attempting to dispatch action with object {action.get('object').id}")
+            logger.debug(f"Attempting to dispatch action at area {self.id} with object {action.get('object').id}")
 
             for artifact_id in game_state.artifacts:
                 if artifact_id == self.id:
@@ -63,6 +63,27 @@ class Area(Artifact):
             return game_actions.do_action(self, action, game_state)
 
         return area_actions.do_action(self, action, game_state)
+
+    def get_description(self, game_state) -> str:
+        """
+        Renders the description of the artifact based on current object state.
+
+        This is different from artifact.get_description() in that it checks for light in the area,
+        because moving to a new area defaults to showing the description before any lighting check.
+
+        :return: The rendered description.
+        """
+
+        has_light = any(
+            [
+                game_state.artifacts[item].is_lit 
+                for item in game_state.inventory+self.fixtures+self.items
+            ]
+        )
+
+        if self.is_dark and not has_light:
+            return "It's too dark to see."
+        return self.description_.render(self, game_state)
 
     def _make_exits(self, areas):
         exits = {'n':None, 's':None, 'e':None, 'w':None}
