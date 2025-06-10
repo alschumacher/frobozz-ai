@@ -94,7 +94,6 @@ const ProjectManager = ({ projects, onDeleteProject, onExport, onClose }) => {
                   }}
                 />
               )}
-
               {showStateEventEditor && (
                 <StateEventEditor
                   projectId={selectedProject.id}

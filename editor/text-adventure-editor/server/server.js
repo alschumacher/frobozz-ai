@@ -24,7 +24,6 @@ async function initializeDb() {
     });
 
     console.log('Database opened successfully');
-
     // Create tables if they don't exist
     await db.exec(`
       CREATE TABLE IF NOT EXISTS projects (
@@ -125,15 +124,97 @@ function stringifyJsonFields(item) {
 }
 
 // API Routes
+app.get('/api/projects', async (req, res) => {
+  try {
+    const projects = await db.all('SELECT rowid as id, name, created_at FROM projects ORDER BY created_at DESC');
+    res.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Failed to fetch projects' });
+  }
+});
+
+app.post('/api/projects', async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Project name is required' });
+    }
+
+    // First check if project with same name exists
+    const existingProject = await db.get('SELECT * FROM projects WHERE name = ?', [name]);
+    if (existingProject) {
+      return res.status(400).json({ error: 'Project with this name already exists' });
+    }
+
+    // Insert new project
+    const stmt = await db.prepare('INSERT INTO projects (name) VALUES (?)');
+    const result = await stmt.run(name);
+    await stmt.finalize();
+
+    // Get the newly created project with its ID
+    const project = await db.get('SELECT rowid as id, name, created_at FROM projects WHERE rowid = ?', [result.lastID]);
+    
+    if (!project) {
+      throw new Error('Failed to retrieve created project');
+    }
+
+    res.json(project);
+  } catch (error) {
+    console.error('Error creating project:', error);
+    res.status(500).json({ error: error.message || 'Failed to create project' });
+  }
+});
+
 app.get('/api/items', async (req, res) => {
   try {
-    const items = await db.all('SELECT * FROM items');
-    // Parse JSON strings back to objects/arrays
+    const { project_id } = req.query;
+    let query = 'SELECT * FROM items';
+    let params = [];
+
+    if (project_id) {
+      query += ' WHERE project_id = ?';
+      params.push(project_id);
+    }
+
+    const items = await db.all(query, params);
     const parsedItems = items.map(parseJsonFields);
     res.json(parsedItems);
   } catch (error) {
     console.error('Error fetching items:', error);
     res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
+app.post('/api/items/assign-project', async (req, res) => {
+  try {
+    const { item_ids, project_id } = req.body;
+    
+    if (!item_ids || !Array.isArray(item_ids) || item_ids.length === 0) {
+      return res.status(400).json({ error: 'Item IDs are required' });
+    }
+    
+    if (!project_id) {
+      return res.status(400).json({ error: 'Project ID is required' });
+    }
+
+    // First verify the project exists
+    const project = await db.get('SELECT rowid as id, name, created_at FROM projects WHERE rowid = ?', [project_id]);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Update each item's project_id
+    const stmt = await db.prepare('UPDATE items SET project_id = ? WHERE id = ?');
+    for (const itemId of item_ids) {
+      await stmt.run(project_id, itemId);
+    }
+    await stmt.finalize();
+
+    res.json({ message: 'Items assigned to project successfully' });
+  } catch (error) {
+    console.error('Error assigning items to project:', error);
+    res.status(500).json({ error: error.message || 'Failed to assign items to project' });
   }
 });
 
@@ -558,12 +639,97 @@ app.post('/api/projects/:id/state-events', async (req, res) => {
   }
 });
 
+// Add DELETE endpoint for projects
+app.delete('/api/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // First verify the project exists
+    const project = await db.get('SELECT rowid as id, name, created_at FROM projects WHERE rowid = ?', [id]);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // First remove project_id from all items in this project
+    await db.run('UPDATE items SET project_id = NULL WHERE project_id = ?', [id]);
+
+    // Then delete the project
+    await db.run('DELETE FROM projects WHERE rowid = ?', [id]);
+
+    res.json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete project' });
+  }
+});
+
+// Add endpoints for export settings
+app.get('/api/projects/:id/export-settings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const settings = await db.get('SELECT * FROM export_settings WHERE project_id = ?', [id]);
+    if (!settings) {
+      return res.status(404).json({ error: 'Export settings not found' });
+    }
+    res.json({
+      ...settings,
+      game_state: JSON.parse(settings.game_state)
+    });
+  } catch (error) {
+    console.error('Error fetching export settings:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch export settings' });
+  }
+});
+
+app.post('/api/projects/:id/export-settings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { start_area, game_state } = req.body;
+
+    if (!start_area) {
+      return res.status(400).json({ error: 'start_area is required' });
+    }
+
+    // Verify project exists
+    const project = await db.get('SELECT rowid as id FROM projects WHERE rowid = ?', [id]);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Check if settings already exist
+    const existingSettings = await db.get('SELECT id FROM export_settings WHERE project_id = ?', [id]);
+    
+    if (existingSettings) {
+      // Update existing settings
+      await db.run(
+        'UPDATE export_settings SET start_area = ?, game_state = ? WHERE project_id = ?',
+        [start_area, JSON.stringify(game_state || {}), id]
+      );
+    } else {
+      // Create new settings
+      await db.run(
+        'INSERT INTO export_settings (project_id, start_area, game_state) VALUES (?, ?, ?)',
+        [id, start_area, JSON.stringify(game_state || {})]
+      );
+    }
+
+    res.json({ message: 'Export settings saved successfully' });
+  } catch (error) {
+    console.error('Error saving export settings:', error);
+    res.status(500).json({ error: error.message || 'Failed to save export settings' });
+  }
+});
+
 // Start server
 async function startServer() {
   try {
     await initializeDb();
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+      console.log('Available routes:');
+      console.log('  GET /api/projects');
+      console.log('  POST /api/projects');
+      console.log('  POST /api/items/assign-project');
     });
   } catch (error) {
     console.error('Error starting server:', error);
