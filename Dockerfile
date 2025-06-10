@@ -11,6 +11,8 @@ COPY /game game/
 COPY /tests tests/
 COPY /ui ui/
 COPY play.sh .
+COPY .env .
+COPY simulate.py .
 
 EXPOSE 5440
 
