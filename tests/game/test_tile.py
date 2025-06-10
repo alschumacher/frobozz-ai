@@ -16,7 +16,7 @@ def artifacts():
         'fixtures_': ['pedastel'],
         'exits_': {'Door Room': 'south'},
         'properties': {'is_accessible': False, 'is_visible': True},
-        "triggers": {'open_ze_door__True': [["is_accessible", True]]},
+        "triggers": {'open_ze_door__True': {"is_accessible": True}},
     }),
     Fixture.model_validate({
         'type': 'fixture',
@@ -58,6 +58,7 @@ def test_tile_properties(artifacts):
     area = artifacts[0]
     assert area.is_accessible == area.properties.is_accessible
 
+# @pytest.mark.skip('old way of triggering events')
 def test_tile_trigger_events(artifacts):
     area = artifacts[0]
     event = {'open_ze_door': True}

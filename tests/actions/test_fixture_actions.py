@@ -19,6 +19,7 @@ def obj():
 def test_look_action(mocker, game_state):
 
     mock_context = mocker.Mock()
+    mock_context.is_dark = False
     mock_context.get_description.return_value = "A detailed description of the item."
 
     response = look(mock_context, game_state)

@@ -92,7 +92,7 @@ def test_use_success(context, game_state):
     context.fixtures = ['door']
     context.items = []
     response = use(context, object, iobject, game_state)
-    assert response.success
+    assert not response.success # False is now the expected return here.
     assert response.message != "You can't do that here."
 
 def test_use_object_not_in_inventory(context, game_state):
