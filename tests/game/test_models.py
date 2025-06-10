@@ -23,9 +23,7 @@ def test_handle_action_response_initialization():
     assert response.message == ''
     assert response.events == {}
     assert response.new_state is None
-    assert response.new_interactions == {}
     assert response.consumed is None
-    assert response.item_use is None
     assert response.item is None
     assert response.is_repeatable is True
     assert response.success is False

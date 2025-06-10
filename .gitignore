@@ -103,4 +103,8 @@ docker-compose.override.yml
 *~
 *.bak
 *.tmp
-*.temp 
+*.temp
+
+# Environment files
+.env
+.env.* 

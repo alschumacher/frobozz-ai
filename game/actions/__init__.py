@@ -20,7 +20,7 @@ def look(context, game_state, **kwargs):
     )
 
     if context.is_dark and not has_light:
-        return HandleActionResponse(message='It\'s too dark to see poop.', success=False)
+        return HandleActionResponse(message='It\'s too dark to see.', success=False)
 
     return HandleActionResponse(message=context.get_description(game_state), success=True)
 
