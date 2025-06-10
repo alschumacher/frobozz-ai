@@ -25,7 +25,8 @@ With this in mind, it should be clear now just how great of a test of abductive 
 It just uses docker + streamlit, for now anyway, so you'll need that. You'll also need an `OPENAI_API_KEY` and to put that in a `.env` file (just one line of `OPENAI_API_KEY=...` should do it). And then run the following:
 
 `docker build -t text_adventure .`
-` docker run -p 5440:5440 -e OPENAI_API_KEY="$(grep OPENAI_API_KEY .env | cut -d '=' -f2)" text_adventure`
+
+`docker run -p 5440:5440 -e OPENAI_API_KEY="$(grep OPENAI_API_KEY .env | cut -d '=' -f2)" text_adventure`
 
 Once you do that, you'll be able to just head over to http://localhost:5440
 
@@ -37,6 +38,6 @@ Yeah, the agent doesn't do very well.  In most runs, it gets way too distracted 
 
 ## Notes
 
-* There is a conspicous editor/text-adventure-editor folder in here.  It is a mostly vibe-coded React project for building text adventures by hand within the engine I wrote.
+* This text adventure is about the **simplest** and also **silliest** type of text adventure you could conceive of. But it's just there for a demo. As I said, I don't want data leaks. There is another, much harder, text adventure in the works that will really test all this stuff.
+* There is a conspicous editor/text-adventure-editor folder in here.  It is a mostly vibe-coded React project for building text adventures by hand within the engine I wrote, but I did write a few bits myself and help the coding agent find its way back when it got lost.
 * For now, only OpenAI models are supported. Easy extension later on. The project is still very much in the early stages.
-* There is another, much harder, text adventure in the works that will really test all this stuff.
