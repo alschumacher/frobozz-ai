@@ -18,36 +18,36 @@ let db;
 async function initializeDb() {
   try {
     console.log('Initializing database...');
-    db = await open({
-      filename: path.join(__dirname, 'crud.db'),
-      driver: sqlite3.Database
-    });
+  db = await open({
+    filename: path.join(__dirname, 'crud.db'),
+    driver: sqlite3.Database
+  });
 
     console.log('Database opened successfully');
     // Create tables if they don't exist
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS projects (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         state_events TEXT DEFAULT '{}'
-      );
+    );
 
-      CREATE TABLE IF NOT EXISTS items (
-        id TEXT PRIMARY KEY,
-        type TEXT NOT NULL,
-        name TEXT NOT NULL,
-        description_ TEXT,
-        container_description TEXT DEFAULT '',
-        fixtures_ TEXT DEFAULT '[]',
-        items_ TEXT DEFAULT '[]',
-        display_order TEXT DEFAULT '[]',
-        exits_ TEXT DEFAULT '{}',
-        properties TEXT DEFAULT '{}',
-        triggers TEXT DEFAULT '{}',
-        interactions TEXT DEFAULT '{}',
-        project_id INTEGER DEFAULT NULL,
-        FOREIGN KEY (project_id) REFERENCES projects(id)
+    CREATE TABLE IF NOT EXISTS items (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description_ TEXT,
+      container_description TEXT DEFAULT '',
+      fixtures_ TEXT DEFAULT '[]',
+      items_ TEXT DEFAULT '[]',
+      display_order TEXT DEFAULT '[]',
+      exits_ TEXT DEFAULT '{}',
+      properties TEXT DEFAULT '{}',
+      triggers TEXT DEFAULT '{}',
+      interactions TEXT DEFAULT '{}',
+      project_id INTEGER DEFAULT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
       );
 
       CREATE TABLE IF NOT EXISTS export_settings (
@@ -507,15 +507,15 @@ app.post('/api/projects/:id/export-settings', async (req, res) => {
 
     // Initialize game state if not provided
     let finalGameState = game_state || {
-      inventory: [],
-      log: ['[GAME START]'],
-      score: 0,
-      timer: 0,
-      artifacts: {},
-      id_to_name: {},
-      events: {},
-      interactions: {},
-      visited_tiles: []
+        inventory: [],
+        log: ['[GAME START]'],
+        score: 0,
+        timer: 0,
+        artifacts: {},
+        id_to_name: {},
+        events: {},
+        interactions: {},
+        visited_tiles: []
     };
 
     // Ensure game_state is an object
