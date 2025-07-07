@@ -1,7 +1,7 @@
 from game.models import HandleActionResponse, GameState
 from game.actions.action_enums import ThreePlacePredicates
 
-from game.logger import logger
+from game.logger import logger, list_handler
 
 def modify_response(response, **kwargs):
     for key, value in kwargs.items():
@@ -44,15 +44,13 @@ def dispatch_events(
 
     # If the action is a ThreePlacePredicate, like `use`, the interaction name
     # requires it and the iobject in order to identify the interaction.
-    if action in ThreePlacePredicates._value2member_map_:
-        logger.debug(f"ThreePlacePredicate action: {action}")
-        iobject = kwargs.get('iobject')
-        if iobject:
-            logger.debug(f"ThreePlacePredicate iobject found: {iobject}")
-            if iobject.is_broken:
-                return HandleActionResponse(message=f'{iobject.name} is broken.', success=False)
+    iobject = kwargs.get('iobject')
+    if action in ThreePlacePredicates._value2member_map_ and iobject:
+        logger.debug(f"ThreePlacePredicate action: {action} and iobject found: {iobject}")
+        if iobject.is_broken:
+            return HandleActionResponse(message=f'{iobject.name} is broken.', success=False)
 
-            interaction_name += f"__{iobject.id}"
+        interaction_name += f"__{iobject.id}"
 
     logger.info(f"Dispatching events for interaction: {interaction_name}")
 
@@ -62,6 +60,9 @@ def dispatch_events(
     elif game_state.interactions.get(interaction_name):
         interaction = game_state.interactions[interaction_name]
         locus = 'game_state'
+    elif iobject and iobject.interactions.get(interaction_name):
+        interaction = iobject.interactions[interaction_name]
+        locus = 'iobject'
     else:
         return response
 

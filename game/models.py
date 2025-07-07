@@ -14,6 +14,7 @@ class GameState(BaseModel):
     interactions: dict = Field(default_factory=dict)
     state_events: dict = Field(default_factory=dict)
     visited_tiles: list = Field(default_factory=list)
+    state_messages: str = ''
 
     @property
     def event_log(self):
@@ -54,6 +55,7 @@ class ItemProperties(BaseModel):
     is_flammable: bool = False
     is_dark: bool = False
 
+
 class FixtureProperties(BaseModel):
     is_openable: bool = False
     is_open: bool = False
@@ -64,6 +66,7 @@ class FixtureProperties(BaseModel):
     is_lit: bool = False
     is_flammable: bool = False
     is_dark: bool = False
+
 
 class AreaProperties(BaseModel):
     is_accessible: bool = True

@@ -5,7 +5,7 @@ from game.core.area import Area
 from game.engine import TextAdventure
 from game.parser import parse_command
 
-adventure = TextAdventure(config='./adventures/sample.json')
+adventure = TextAdventure(config='../adventures/sample.json')
 
 def test_game_state():
 
@@ -74,7 +74,7 @@ def test_adventure():
          'Ye find yeself in yon dungeon. Ye see a FLASK. Obvious exits are NORTH, SOUTH, and DENNIS.',
         "I don't see any box here.",
         'It is a flask. There appears to be some strange MARKING on it.',
-        'The marking is a RUNE of some sort.  It is difficult to make out.',
+         'The marking is a RUNE of some sort.  It is difficult to make out.',
         'Turns out the rune isn\'t a rune at all, it is some words that read "This isn\'t the flask you\'re looking for". Ironic!',
         "You can't take that.",
         "You can't take that.",
@@ -105,8 +105,9 @@ def test_adventure():
         "Ye find yeself in the treasure room. There is a PLACQUE on the wall. Ye see a PEDASTEL. I could tell you the exits, but you don't really want to go backwards do you? There's nothing for you there. Oh, fine, whatever. Exits are SOUTH.",
         "It reads: 'Here is an anagram: This text adventure sucks.' You think for a long time, but the only way you can think to decode it is with the sentence 'This text adventure sucks'",
         'It is a pedastel. There is a GOLDEN FLASK on it.',
-        'You have won the game!'
-    ]
+        'You got ye flask!'
+        ]
+
 
     commands = [
         'help',

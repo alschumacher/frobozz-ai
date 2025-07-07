@@ -28,8 +28,15 @@ class TextAdventure:
 
     def __init__(self, config):
         # The order is deliberate and necessary.
+        self.config = config
         self.game_state = self._read_config(config)
         self._initialize()
+
+    def run_state_command(self, game_state:GameState, command:str) -> Tuple[GameState, str]:
+        self.game_state = game_state
+        response = self.run_command(command)
+        return self.game_state, response
+
 
     def run_command(self, command:str) -> str:
         """
@@ -45,6 +52,18 @@ class TextAdventure:
             str: The response message after executing the command.
         """
         # Parse the command
+
+        # If the game_victory event has been dispatched
+        if self.game_state.events.get('game_victory'):
+            return 'You have already won the game.'
+
+        if self.game_state.events.get('game_defeat') and command != 'restart':
+            return "You have died. If you want to restart, enter 'restart'"
+        
+        if command == 'restart':
+            self.__init__(self.config)
+            return self.run_command('look')
+
         command = self._parse_command(command)
         logger.info(f'Parsed command: {command}')
 
@@ -113,15 +132,20 @@ class TextAdventure:
                 if not self.game_state.event_log.get(event):
                     logger.info(f'Triggering state event: {event}')
                 self.game_state.event_log = {event:True}
+
+                # sometimes we double messages across events because multiple events
+                # can send the same message but we don't want to fire the language multiple
+                # times
+                if conditions.get('message', '') not in self.game_state.state_messages:
+                    self.game_state.state_messages += conditions.get('message', '')
+                conditions['message'] = ''
             else:
                 if self.game_state.event_log.get(event):
                     logger.info(f'Turning off state event: {event}')
                 self.game_state.event_log = {event:False}
 
-        # If the game_victory event has been dispatched
-        if self.game_state.events.get('game_victory'):
-            logger.info('Game victory event dispatched')
-            return 'You have won the game!'
+        response.message += self.game_state.state_messages
+        self.game_state.state_messages = ''
 
         return response.message
 
@@ -142,11 +166,21 @@ class TextAdventure:
         if action in [x.value for x in GameActions]:
             logger.debug(f'Singleton Game action: {action}')
             return {'action':action}
-
         # If the action is a valid defined action, fail the command
         if action not in [x.value for x in InteractiveActions]:
             logger.warning(f'Command attempted with invalid action: {action}')
             return 'I don\'t understand that command'
+        
+        if command in ['north', 'south', 'east', 'west']:
+            match command:
+                case 'north':
+                    command = 'n'
+                case 'south':
+                    command = 's'
+                case 'east':
+                    command = 'e'
+                case 'west':
+                    command = 'w'
 
         # Otherwise parse the command
         logger.debug(f'Parsing text as command: {command}')

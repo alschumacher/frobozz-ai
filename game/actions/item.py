@@ -52,3 +52,23 @@ def close(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs)
 
     return response
 
+# @ItemActions.register_action('use')
+# def use(context:'Artifact', object:'Artifact', iobject:'Artifact', game_state:GameState, **kwargs) -> HandleActionResponse:
+#     """The joys of English adpositional syntax mandate different args than area-oriented `use`"""
+#     object_in_inventory = any([item == object.id for item in game_state.inventory])
+
+#     if not object_in_inventory:
+#         logger.debug(f'{context.id} failed to find {object.id} in inventory')
+#         return HandleActionResponse(message=f'You don\'t have a {object.name}')
+
+#     iobject_available = any([fxt == iobject.id for fxt in context.fixtures])
+
+#     if not iobject_available:
+#         logger.debug(f'{context.id} failed to find {iobject.id} in environment')
+#         return HandleActionResponse(message=f'You don\'t have a {iobject.name}')
+
+#     response = HandleActionResponse(message=f'You can\'t do that here.')
+
+#     response = dispatch_events(response, context, game_state, 'use', object, **{'iobject': iobject, 'item': iobject, 'item_use': (object.id, iobject.id)})
+
+#     return response
