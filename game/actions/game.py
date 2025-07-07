@@ -16,15 +16,33 @@ def inventory(game_state, **kwargs):
 
 @GameActions.register_action('help')
 def help(**kwargs):
-    _help = 'lol look at you, asking for help in a text adventure game\n'
-    _help += 'Here are some commands you can use:\n'
-    _help += 'go [direction]\n'
-    _help += 'look\n'
-    _help += 'take [item]\n'
-    _help += 'drop [item]\n'
-    _help += 'use [item] on/with etc. [thing/item]\n'
-    _help += 'open [thing/item]\n'
-    _help += 'close [thing/item]\n'
+    _help = """
+    Here are the names of all the actions:
+    - look / examine
+    - take
+    - get
+    - drop
+    - put
+    - use
+    - open
+    - close
+    - n (means go north)
+    - s (means go south)
+    - e (means go east)
+    - w (measn go west)
+    - light
+    - burn
+    - ignite
+    - cut
+    - saw
+    - turn
+    - rotate
+    - push
+    - pull
+
+    To see your inventory, type:
+    - inventory
+    """
     return HandleActionResponse(message=_help)
 
 

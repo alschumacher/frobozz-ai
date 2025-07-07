@@ -1,13 +1,13 @@
 from pydantic import Field
 from typing import Any
 
-from game.actions.action_enums import FixtureVerbs, ItemVerbs, GameVerbs, IntransitiveVerbs
+from game.actions.action_enums import FixtureVerbs, ItemVerbs, GameVerbs, IntransitiveVerbs, ThreePlacePredicates
 from game.actions import area_actions
 from game.actions import game_actions
 from game.models import AreaProperties
 from game.core.artifact import Artifact
 
-from game.logger import logger
+from game.logger import logger, list_handler
 
 class Area(Artifact):
     """
@@ -41,15 +41,16 @@ class Area(Artifact):
                         action['action'] in ItemVerbs._value2member_map_
                 )
                 requires_object = action['action'] not in IntransitiveVerbs._value2member_map_
+                requires_iobject = action['action'] in ThreePlacePredicates._value2member_map_
 
-                if is_target_object:# and requires_object:
+                if is_target_object:
                     logger.info(f"Found target object: {artifact.id} for action {action['action']}; handling action.")
                     logger.debug(f"Dispatching action {action['action']} to {artifact.id}")
                     action['dispatched'] = True
                     response = artifact.handle_action(action, game_state)
                     if response.success:
                         logger.debug(f"Action {action['action']} dispatched to {artifact.id} successfully")
-                        return response
+                        return response                    
                 elif not is_target_object and is_delegatable_action and action.get('object').id in artifact.fixtures + artifact.items and requires_object:
                     action['dispatched'] = True
                     response = artifact.handle_action(action, game_state)

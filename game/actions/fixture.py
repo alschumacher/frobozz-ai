@@ -61,3 +61,29 @@ def turn(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) 
     response = dispatch_events(response, context, game_state, 'turn', object)
 
     return response
+
+@FixtureActions.register_action('push')
+def push(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) -> HandleActionResponse:
+
+    if object.is_locked:
+        logger.debug(f'{context.id} is locked.')
+        return HandleActionResponse(message=f'{context.name} is locked.')
+
+    response = HandleActionResponse(message=f'You can\'t push that.', success=False)
+
+    response = dispatch_events(response, context, game_state, 'push', object)
+
+    return response
+
+@FixtureActions.register_action('pull')
+def pull(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) -> HandleActionResponse:
+
+    if object.is_locked:
+        logger.debug(f'{context.id} is locked.')
+        return HandleActionResponse(message=f'{context.name} is locked.')
+
+    response = HandleActionResponse(message=f'You can\'t pull that.', success=False)
+
+    response = dispatch_events(response, context, game_state, 'pull', object)
+
+    return response

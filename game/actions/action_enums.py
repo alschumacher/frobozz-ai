@@ -4,6 +4,8 @@ from enum import Enum
 class InteractiveActions(Enum):
     GO = "go"
     LOOK = "look"
+    EXAMINE = "examine"
+    DESCRIBE = "describe"
     TAKE = "take"
     GET = 'get'
     DROP = "drop"
@@ -15,6 +17,10 @@ class InteractiveActions(Enum):
     S = "s"
     E = "e"
     W = "w"
+    NORTH = "north"
+    SOUTH = "south"
+    EAST = "east"
+    WEST = "west"
     LIGHT = 'light'
     BURN = 'burn'
     IGNITE = 'ignite'
@@ -23,6 +29,8 @@ class InteractiveActions(Enum):
     SAW = 'saw' 
     TURN = 'turn'
     ROTATE = 'rotate'
+    PUSH = 'push'
+    PULL = 'pull'
 
 class GameActions(Enum):
     INVENTORY = "inventory"
@@ -56,6 +64,8 @@ class FixtureVerbs(Enum):
     SAW = 'saw'
     TURN = 'turn'
     ROTATE = 'rotate'
+    PUSH = 'push'
+    PULL = 'pull'
 
 class AreaVerbs(Enum):
     LOOK = 'look'

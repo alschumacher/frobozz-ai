@@ -2,7 +2,7 @@ from game.actions.actions import Actions
 from game.models import HandleActionResponse
 from game.actions.utils import dispatch_events
 from game.models import GameState
-from game.logger import logger
+from game.logger import logger, list_handler
 
 class AreaActions(Actions):
     pass
@@ -10,6 +10,9 @@ class AreaActions(Actions):
 
 @AreaActions.register_action('n')
 def n(context, game_state:GameState, **kwargs) -> HandleActionResponse:
+    logger.debug('trying to go north')
+    logger.debug(context.exits[0] is not None)
+    logger.debug(context.exits[0].is_accessible)
     if context.exits[0] is not None and context.exits[0].is_accessible:
         logger.debug(f'Going north to {context.exits[0].name}')
         return HandleActionResponse(
@@ -71,6 +74,14 @@ def go(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) ->
 
 @AreaActions.register_action('use')
 def use(context:'Artifact', object:'Artifact', iobject:'Artifact', game_state:GameState, **kwargs) -> HandleActionResponse:
+
+    if object is None:
+        logger.debug(f'use action passed with null object')
+        return HandleActionResponse(message=f'Use what?')
+
+    if iobject is None:
+        logger.debug(f'use action passed with null iobject')
+        return HandleActionResponse(message=f'Use {object.name} with what?')
 
     object_in_inventory = any([item == object.id for item in game_state.inventory])
 

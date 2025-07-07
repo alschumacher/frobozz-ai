@@ -2,6 +2,19 @@ import en_core_web_sm
 
 nlp = en_core_web_sm.load()
 
+def normalize_direction(obj):
+    match obj:
+        case 'north':
+            return 'n'
+        case 'south':
+            return 's'
+        case 'east':
+            return 'e'
+        case 'west':
+            return 'w'
+        case _:  
+            return obj 
+
 def parse_command(command:str) -> tuple:
     """
     Parses a command string into an action, object, and indirect object.
@@ -49,5 +62,7 @@ def parse_command(command:str) -> tuple:
             if tok.dep_ in ['dative', 'pobj']:
                 iobject = tok.text
                 break
+
+    object = normalize_direction(object)
 
     return action, object, iobject

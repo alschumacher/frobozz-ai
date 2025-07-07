@@ -7,9 +7,9 @@ from game.actions.utils import dispatch_events
 
 from game.logger import logger
 
-@FixtureActions.register_action('look')
-@ItemActions.register_action('look')
-@AreaActions.register_action('look')
+@FixtureActions.register_action(['look', 'examine', 'describe'])
+@ItemActions.register_action(['look', 'examine', 'describe'])
+@AreaActions.register_action(['look', 'examine', 'describe'])
 def look(context, game_state, **kwargs):
 
     has_light = any(
@@ -31,11 +31,11 @@ def take(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) 
 
     if not object:
         logger.debug(f"Object not passed as usable object")
-        return HandleActionResponse(message=f'You can\'t take that.')
+        return HandleActionResponse(message=f'You can\'t take that.', success=True)
 
     if not object.is_accessible or object.id not in context.items:
         logger.debug(f"{object.id} not accessible")
-        return HandleActionResponse(message=f'You can\'t take that.')
+        return HandleActionResponse(message=f'You can\'t take that.', success=False)
 
     if object.id in game_state.inventory:
         logger.debug(f"{object.id} already in player inventory")
@@ -75,7 +75,7 @@ def drop(context:'Artifact', object:'Artifact', game_state:GameState, **kwargs) 
     # do this to trigger the setter
     context.items = context.items + [object.id]
 
-    response = HandleActionResponse(message=f'You dropped the {object.name}', success=True)
+    response = HandleActionResponse(message=f'You put the {object.name} down.', success=True)
 
     response = dispatch_events(response, context, game_state, 'drop', object, **kwargs)
 
@@ -96,7 +96,10 @@ def light(context:'Artifact', object:'Artifact', iobject:'Artifact', game_state:
     if object.is_lit:
         return HandleActionResponse(message='It\'s already on fire.', success=True)
 
-    if not iobject.is_lit:
+    if iobject is None:
+        return HandleActionResponse(message='You need something to light it with.', success=True)
+
+    if iobject.is_lit:
         return HandleActionResponse(message='There\'s no light to light it with.', success=True)
 
     object.is_lit = True
